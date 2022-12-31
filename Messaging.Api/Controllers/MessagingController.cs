@@ -15,7 +15,7 @@ public class MessagingController : ControllerBase
 {
     private readonly ILogger<MessagingController> _logger;
     private readonly IAmazonSQS _sqsClient;
-    private readonly IConfiguration _configuration;
+    private readonly string _queueUrl;
 
     public MessagingController(
         ILogger<MessagingController> logger,
@@ -24,7 +24,7 @@ public class MessagingController : ControllerBase
     {
         _logger = logger;
         _sqsClient = sqsClient;
-        _configuration = configuration;
+        _queueUrl = configuration["AWS:SQSQueueUrl"];
     }
 
     [HttpPost]
@@ -35,7 +35,7 @@ public class MessagingController : ControllerBase
             var response = await _sqsClient.SendMessageAsync(new SendMessageRequest()
             {
                 MessageBody = JsonSerializer.Serialize(data),
-                QueueUrl = _configuration["AWS:SQSQueueUrl"]
+                QueueUrl = _queueUrl
             });
 
             return Ok(response);
@@ -51,7 +51,7 @@ public class MessagingController : ControllerBase
     {
         try
         {
-            var response = await _sqsClient.PurgeQueueAsync(_configuration["AWS:SQSQueueUrl"]);
+            var response = await _sqsClient.PurgeQueueAsync(_queueUrl);
             return Ok(response);
         }
         catch (Exception ex)
