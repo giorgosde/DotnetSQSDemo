@@ -7,42 +7,41 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Messaging.Api.BackgroundServices
+namespace Messaging.Api.BackgroundServices;
+
+public class MessageConsumerService : BackgroundService
 {
-    public class MessageConsumerService : BackgroundService
+    private readonly ILogger<MessageConsumerService> _logger;
+    private readonly IAmazonSQS _sqsClient;
+    private readonly IConfiguration _configuration;
+
+    public MessageConsumerService(
+        ILogger<MessageConsumerService> logger,
+        IAmazonSQS sqsClient,
+        IConfiguration configuration)
     {
-        private readonly ILogger<MessageConsumerService> _logger;
-        private readonly IAmazonSQS _sqsClient;
-        private readonly IConfiguration _configuration;
+        _logger = logger;
+        _sqsClient = sqsClient;
+        _configuration = configuration;
+    }
 
-        public MessageConsumerService(
-            ILogger<MessageConsumerService> logger,
-            IAmazonSQS sqsClient,
-            IConfiguration configuration)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("MessageConsumer running");
+
+        var queueUrl = _configuration["AWS:SQSQueueUrl"];
+        while (!stoppingToken.IsCancellationRequested)
         {
-            _logger = logger;
-            _sqsClient = sqsClient;
-            _configuration = configuration;
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            _logger.LogInformation("MessageConsumer running");
-
-            var queueUrl = _configuration["AWS:SQSQueueUrl"];
-            while (!stoppingToken.IsCancellationRequested)
+            var response = await _sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest()
             {
-                var response = await _sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest()
-                {
-                    QueueUrl = queueUrl
-                });
-                
-                foreach (var message in response.Messages)
-                {
-                    Console.WriteLine($"Received Message: {message.Body}");
+                QueueUrl = queueUrl
+            });
+            
+            foreach (var message in response.Messages)
+            {
+                Console.WriteLine($"Received Message: {message.Body}");
 
-                    _ = await _sqsClient.DeleteMessageAsync(queueUrl, message.ReceiptHandle);
-                }
+                _ = await _sqsClient.DeleteMessageAsync(queueUrl, message.ReceiptHandle);
             }
         }
     }

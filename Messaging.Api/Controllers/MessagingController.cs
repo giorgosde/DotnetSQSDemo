@@ -7,43 +7,42 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Messaging.Api.Controllers
+namespace Messaging.Api.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class MessagingController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class MessagingController : ControllerBase
+    private readonly ILogger<MessagingController> _logger;
+    private readonly IAmazonSQS _sqsClient;
+    private readonly IConfiguration _configuration;
+
+    public MessagingController(
+        ILogger<MessagingController> logger,
+        IAmazonSQS sqsClient,
+        IConfiguration configuration)
     {
-        private readonly ILogger<MessagingController> _logger;
-        private readonly IAmazonSQS _sqsClient;
-        private readonly IConfiguration _configuration;
+        _logger = logger;
+        _sqsClient = sqsClient;
+        _configuration = configuration;
+    }
 
-        public MessagingController(
-            ILogger<MessagingController> logger,
-            IAmazonSQS sqsClient,
-            IConfiguration configuration)
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] object data)
+    {
+        try
         {
-            _logger = logger;
-            _sqsClient = sqsClient;
-            _configuration = configuration;
+            var response = await _sqsClient.SendMessageAsync(new SendMessageRequest()
+            {
+                MessageBody = JsonSerializer.Serialize(data),
+                QueueUrl = _configuration["AWS:SQSQueueUrl"]
+            });
+
+            return Ok(response);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] object data)
+        catch (Exception ex)
         {
-            try
-            {
-                var response = await _sqsClient.SendMessageAsync(new SendMessageRequest()
-                {
-                    MessageBody = JsonSerializer.Serialize(data),
-                    QueueUrl = _configuration["AWS:SQSQueueUrl"]
-                });
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return BadRequest(ex.Message);
         }
     }
 }
