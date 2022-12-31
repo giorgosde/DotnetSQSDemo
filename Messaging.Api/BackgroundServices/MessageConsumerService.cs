@@ -39,7 +39,7 @@ public class MessageConsumerService : BackgroundService
             
             foreach (var message in response.Messages)
             {
-                Console.WriteLine($"Received Message: {message.Body}");
+                _logger.LogInformation($"Received Message: {message.Body}");
 
                 _ = await _sqsClient.DeleteMessageAsync(queueUrl, message.ReceiptHandle);
             }
