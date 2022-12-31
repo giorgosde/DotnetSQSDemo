@@ -45,4 +45,18 @@ public class MessagingController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Purge()
+    {
+        try
+        {
+            var response = await _sqsClient.PurgeQueueAsync(_configuration["AWS:SQSQueueUrl"]);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }
