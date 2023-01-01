@@ -39,6 +39,7 @@ public class MessageConsumerService : BackgroundService
             
             foreach (var message in response.Messages)
             {
+                // For demo purposes, display and immediately delete the message
                 _logger.LogInformation($"Received Message: {message.Body}");
 
                 _ = await _sqsClient.DeleteMessageAsync(queueUrl, message.ReceiptHandle, stoppingToken);
