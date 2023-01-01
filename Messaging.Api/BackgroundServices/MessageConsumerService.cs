@@ -35,13 +35,13 @@ public class MessageConsumerService : BackgroundService
             var response = await _sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest()
             {
                 QueueUrl = queueUrl
-            });
+            }, stoppingToken);
             
             foreach (var message in response.Messages)
             {
                 _logger.LogInformation($"Received Message: {message.Body}");
 
-                _ = await _sqsClient.DeleteMessageAsync(queueUrl, message.ReceiptHandle);
+                _ = await _sqsClient.DeleteMessageAsync(queueUrl, message.ReceiptHandle, stoppingToken);
             }
         }
     }
