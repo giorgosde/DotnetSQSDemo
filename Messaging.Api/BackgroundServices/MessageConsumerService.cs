@@ -3,7 +3,6 @@ using Amazon.SQS;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using System.Threading;
-using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
