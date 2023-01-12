@@ -19,6 +19,7 @@ This repo is part of a series focusing on .NET/C#. This repo is meant to be publ
 #### Prerequisites:
 - AWS Account
 - [AWS SQS queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/step-create-queue.html)
+- [Datadog Account](https://www.datadoghq.com/) (optional)
 
 #### Troubleshooting:
 - For SQS connectivity issues ensuer that the queueUrl is set in the `appsettings.json` file  
