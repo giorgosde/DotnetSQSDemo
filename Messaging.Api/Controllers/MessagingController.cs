@@ -3,7 +3,7 @@ using Amazon.SQS.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,12 +14,12 @@ namespace Messaging.Api.Controllers;
 [Route("[controller]")]
 public class MessagingController : ControllerBase
 {
-    private readonly ILogger<MessagingController> _logger;
+    private readonly ILogger _logger;
     private readonly IAmazonSQS _sqsClient;
     private readonly string _queueUrl;
 
     public MessagingController(
-        ILogger<MessagingController> logger,
+        ILogger logger,
         IAmazonSQS sqsClient,
         IConfiguration configuration)
     {

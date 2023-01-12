@@ -4,18 +4,18 @@ using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Messaging.Api.BackgroundServices;
 
 public class MessageConsumerService : BackgroundService
 {
-    private readonly ILogger<MessageConsumerService> _logger;
+    private readonly ILogger _logger;
     private readonly IAmazonSQS _sqsClient;
     private readonly IConfiguration _configuration;
 
     public MessageConsumerService(
-        ILogger<MessageConsumerService> logger,
+        ILogger logger,
         IAmazonSQS sqsClient,
         IConfiguration configuration)
     {
@@ -26,7 +26,7 @@ public class MessageConsumerService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("MessageConsumer running");
+        _logger.Information("MessageConsumer running");
 
         var queueUrl = _configuration["AWS:SQSQueueUrl"];
         while (!stoppingToken.IsCancellationRequested)
@@ -39,7 +39,7 @@ public class MessageConsumerService : BackgroundService
             foreach (var message in response.Messages)
             {
                 // For demo purposes, display and immediately delete the message
-                _logger.LogInformation($"Received Message: {message.Body}");
+                _logger.Information($"Received Message: {message.Body}");
 
                 _ = await _sqsClient.DeleteMessageAsync(queueUrl, message.ReceiptHandle, stoppingToken);
             }

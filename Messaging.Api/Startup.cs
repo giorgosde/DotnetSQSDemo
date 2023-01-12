@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Serilog.Sinks.Datadog.Logs;
+using Serilog;
 
 namespace Messaging.Api;
 
@@ -21,6 +23,13 @@ public class Startup
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
+        var logger = Log.Logger = new LoggerConfiguration()
+                  .WriteTo.DatadogLogs(
+                    Configuration["Datadog:ApiKey"],
+                    configuration: new DatadogConfiguration { Url = "https://http-intake.logs.datadoghq.com" })
+                  .CreateLogger();
+
+        services.AddSingleton(logger);
 
         services.AddControllers();
         services.AddSwaggerGen(c =>

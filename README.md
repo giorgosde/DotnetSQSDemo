@@ -7,6 +7,7 @@ This repo is part of a series focusing on .NET/C#. This repo is meant to be publ
 - .NET 7
 - WebApi
 - BackgroundService
+- Serilog - Datadog Sink
 
 #### Overview:
 - .Net WenApi contains a single POST endpoint allowing posting messages to SQS
@@ -20,4 +21,5 @@ This repo is part of a series focusing on .NET/C#. This repo is meant to be publ
 - [AWS SQS queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/step-create-queue.html)
 
 #### Troubleshooting:
-- For connectivity issues ensuer that the queueUrl is set in the `appsettings.json` file  
+- For SQS connectivity issues ensuer that the queueUrl is set in the `appsettings.json` file  
+- For DataDog connectivity issues ensure that the apiKey is set in the `appsettings.json` file and the correct `DatadogConfiguration` `url` is set for your Organization's region. For further details check the official [documentation](https://docs.datadoghq.com/logs/log_collection/csharp/?tab=serilog#agentless-logging-with-serilog-sink)
